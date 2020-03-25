@@ -1,0 +1,281 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEditor;
+
+public class CircleMe : MonoBehaviour
+{
+
+    public float RotateSpeed = 5f;      // How fast we move through the radians
+    public float Radius = 0.1f;         // How "deep" the circle is
+
+    public Vector2 centreOfCircle;      // The Centre of our circle
+    public float angleInRadians;        // The angle (in radians) between our position between one update and the next
+                                        // A radian is the angle created if the length of the radius 
+                                        // is laid along the circumference of the circle (about 57.2958 degrees)
+    public Vector2 newPosition;         // The new position for every new Update event
+
+    public Text displayText;
+    public float angleInDegrees;
+    private LineRenderer triLine;
+    private Vector3 centre;
+    private Vector3 yLoc;
+    public float angle4Display;
+    private Vector3 sq1;
+    private Vector3 sq2;
+    private Vector3 sq3;
+    private Vector3 sq4cyan1;
+    private Vector3 sq4cyan2;
+    public Vector2 slopecyan;
+    public Vector2 p1cyan;
+    public Vector2 p2cyan;
+
+    private void Start()
+    {
+        centreOfCircle = transform.position;
+        // (0, 0) but could be anywhere
+        centre = transform.position;
+    }
+
+    private void Update()
+    {
+
+        angleInRadians += RotateSpeed * Time.deltaTime;
+        if (angleInRadians > 6.28319f)
+        {
+            angleInRadians = (angleInRadians % 6.28319f);
+        }
+        // eg.       0 += 5 * 0.25  (answer is 1.25)    // if deltaTime was 0.25 of a second
+        // and our initial angle was 0 radians. 
+        // Remember += is short for x = the current value of x plus itself (x = x + x)
+
+        // we need to convert the angle and radius into an x, y position
+        newPosition = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians)) * Radius;
+        //          = new Vector2(opposite/hypotenuse(1.25), adjacent/hypotenuse(1.25)) * Radius;
+        // (x, y)   =            (0.9997, 0.0218) * 0.1
+        // (x, y)   =            (0.09997, 0.00218)
+        transform.position = centreOfCircle + newPosition;   // Adding Vectors
+                                                             // (0.09997, 0.00218) = (0, 0) + (0.09997, 0.00218)
+                                                             // this is our starting (x, y) position
+
+        // Now do it again for the next Update - the code below has been duplicated for this example
+        /*
+        angleInRadians += RotateSpeed * Time.deltaTime;
+        // eg.       1.25 += 5 * 0.25  (answer is now 1.25 + 1.25 = 2.5)    // if deltaTime was 0.25 of a second 
+        newPosition = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians)) * Radius;
+        //          = new Vector2(opposite/hypotenuse(2.5), adjacent/hypotenuse(2.5)) * Radius;
+        // (x, y)   =            (0.99904, 0.0436) * 0.1
+        // (x, y)   =            (0.09990, 0.00436)
+        transform.position = centreOfCircle + newPosition;   // Adding Vectors
+        // (0.09990, 0.00436) = (0, 0) + (0.09990, 0.00436)
+        */
+        if (transform.position.x > 0)
+        {
+            yLoc = new Vector3(centre.x + Radius, centre.y, centre.z);
+        }
+        else
+        {
+            yLoc = new Vector3(centre.x - Radius, centre.y, centre.z);
+        }
+
+        angleInDegrees = angleInRadians * 57.2958f;
+}
+
+    public void OnDrawGizmos()
+    {
+        // Radius
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(centre, Radius);
+
+        // Yellow square
+        Gizmos.color = Color.yellow;
+        sq1 = new Vector3((transform.position.x / 2), (transform.position.x / 2f), 0f);
+
+
+        if (transform.position.x > 0)
+        {
+            if (transform.position.y > 0)
+            {
+                Gizmos.DrawWireCube(new Vector3((transform.position.x / 2), -(transform.position.x / 2f), 0f), new Vector3((transform.position.x), (transform.position.x), (transform.position.x)));
+                Handles.Label(new Vector3((transform.position.x / 2), -(transform.position.x / 2f), 0f), "Vol: " + (transform.position.x * transform.position.x));
+
+            }
+            else
+            {
+                Gizmos.DrawWireCube(sq1, new Vector3((transform.position.x), (transform.position.x), (transform.position.x)));
+                Handles.Label(sq1, "Vol: " + (transform.position.x * transform.position.x));
+            }
+
+        }
+        else
+        {
+            if (transform.position.y > 0)
+            {
+                Gizmos.DrawWireCube(sq1, new Vector3((transform.position.x), (transform.position.x), (transform.position.x)));
+                Handles.Label(sq1, "Vol: " + (transform.position.x * transform.position.x));
+            }
+            else
+            {
+                Gizmos.DrawWireCube(new Vector3((transform.position.x / 2), -(transform.position.x / 2f), 0f), new Vector3((transform.position.x), (transform.position.x), (transform.position.x)));
+                Handles.Label(new Vector3((transform.position.x / 2), -(transform.position.x / 2f), 0f), "Vol: " + (transform.position.x * transform.position.x));
+            }
+
+        }
+
+        // Magenta square
+        Gizmos.color = Color.magenta;
+        sq2 = new Vector3((transform.position.y / 2), (transform.position.y / 2f), 0f);
+        if (transform.position.x > 0)
+        {
+            if (transform.position.y > 0)
+            {
+                Gizmos.DrawWireCube(new Vector3((transform.position.x + transform.position.y / 2), (transform.position.y / 2f), 0f), new Vector3((transform.position.y), (transform.position.y), (transform.position.y)));
+                Handles.Label(new Vector3((transform.position.x + transform.position.y / 2), (transform.position.y / 2f), 0f), "Vol: " + (transform.position.y * transform.position.y));
+            }
+            else
+            {
+                Gizmos.DrawWireCube(new Vector3((transform.position.x + Mathf.Abs(transform.position.y) / 2), (transform.position.y / 2f), 0f), new Vector3((transform.position.y), (transform.position.y), (transform.position.y)));
+                Handles.Label(new Vector3((transform.position.x + Mathf.Abs(transform.position.y) / 2), (transform.position.y / 2f), 0f), "Vol: " + (transform.position.y * transform.position.y));
+            }
+
+        }
+        else
+        {
+            if (transform.position.y > 0)
+            {
+                Gizmos.DrawWireCube(new Vector3((transform.position.x - transform.position.y / 2), (transform.position.y / 2f), 0f), new Vector3((transform.position.y), (transform.position.y), (transform.position.y)));
+                Handles.Label(new Vector3((transform.position.x - transform.position.y / 2), (transform.position.y / 2f), 0f), "Vol: " + (transform.position.y * transform.position.y));
+            }
+            else
+            {
+                Gizmos.DrawWireCube(new Vector3((transform.position.x + transform.position.y / 2), (transform.position.y / 2f), 0f), new Vector3((transform.position.y), (transform.position.y), (transform.position.y)));
+                Handles.Label(new Vector3((transform.position.x + transform.position.y / 2), (transform.position.y / 2f), 0f), "Vol: " + (transform.position.y * transform.position.y));
+            }
+        }   
+
+        // Red Triangle
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(centre, new Vector3(transform.position.x, centre.y, centre.z));
+        Gizmos.DrawLine(new Vector3(transform.position.x, centre.y, centre.z), transform.position);
+        Gizmos.DrawLine(transform.position, centre);
+
+        if (transform.position.x > 0)
+        {
+            if (transform.position.y > 0)
+            {
+                Gizmos.DrawLine(new Vector3(transform.position.x - 0.1f, 0f, 0f), new Vector3(transform.position.x - 0.1f, 0.1f, 0f));
+                Gizmos.DrawLine(new Vector3(transform.position.x - 0.1f, 0.1f, 0f), new Vector3(transform.position.x, 0.1f, 0f));
+            }
+            else
+            {
+                Gizmos.DrawLine(new Vector3(transform.position.x - 0.1f, 0f, 0f), new Vector3(transform.position.x - 0.1f, -0.1f, 0f));
+                Gizmos.DrawLine(new Vector3(transform.position.x - 0.1f, -0.1f, 0f), new Vector3(transform.position.x, -0.1f, 0f));
+            }
+            
+        }
+        else
+        {
+            if (transform.position.y > 0)
+            {
+                Gizmos.DrawLine(new Vector3(transform.position.x + 0.1f, 0f, 0f), new Vector3(transform.position.x + 0.1f, 0.1f, 0f));
+                Gizmos.DrawLine(new Vector3(transform.position.x + 0.1f, 0.1f, 0f), new Vector3(transform.position.x, 0.1f, 0f));
+            }
+            else
+            {
+                Gizmos.DrawLine(new Vector3(transform.position.x + 0.1f, 0f, 0f), new Vector3(transform.position.x + 0.1f, -0.1f, 0f));
+                Gizmos.DrawLine(new Vector3(transform.position.x + 0.1f, -0.1f, 0f), new Vector3(transform.position.x, -0.1f, 0f));
+            }
+
+        }
+
+        // Cyan Square
+        Gizmos.color = Color.cyan;
+        if ((transform.position.x > 0 && transform.position.y > 0) || (transform.position.x < 0 && transform.position.y < 0))
+        {
+            slopecyan = new Vector2(transform.position.x, transform.position.y);
+            p1cyan = new Vector2((transform.position.x - slopecyan.y), (transform.position.y + slopecyan.x));
+            p2cyan = new Vector2((centre.x - slopecyan.y), (centre.y + slopecyan.x));
+            Gizmos.DrawLine(transform.position, p1cyan);
+            Gizmos.DrawLine(centre, p2cyan);
+            Gizmos.DrawLine(p1cyan, p2cyan);
+        }
+        else
+        {
+            slopecyan = new Vector2(transform.position.x, transform.position.y);
+            p1cyan = new Vector2((transform.position.x + slopecyan.y), (transform.position.y - slopecyan.x));
+            p2cyan = new Vector2((centre.x + slopecyan.y), (centre.y - slopecyan.x));
+            Gizmos.DrawLine(transform.position, p1cyan);
+            Gizmos.DrawLine(centre, p2cyan);
+            Gizmos.DrawLine(p1cyan, p2cyan);
+        }
+
+        Vector3 lbl = new Vector3((p1cyan.x / 2), (p1cyan.y / 2), 0f);
+        Handles.Label((lbl), "Vol: " + (Radius * Radius));
+
+        // Angle Marker
+        if (transform.position.y > 0)
+        {
+            if (transform.position.x > 0)
+            {
+                angle4Display = angleInDegrees;
+                Handles.DrawSolidArc(centre, Vector3.forward, yLoc, angle4Display, 0.25f);
+            }
+            else
+            {
+                angle4Display = -(angleInDegrees - 180f);
+                Handles.DrawSolidArc(centre, Vector3.forward, transform.position, angle4Display, 0.25f);
+            }
+        }
+        else
+        {
+            if (transform.position.x < 0)
+            {
+                angle4Display = (angleInDegrees - 180f);
+                Handles.DrawSolidArc(centre, Vector3.forward, yLoc, angle4Display, 0.25f);
+            }
+            else
+            {
+                angle4Display = -(angleInDegrees - 360f);
+                Handles.DrawSolidArc(centre, Vector3.forward, transform.position, angle4Display, 0.25f);
+            }
+        }
+
+
+
+        // Labels
+        Handles.color = Color.blue;
+        Handles.Label(centreOfCircle, angle4Display.ToString());
+        Handles.color = Color.white;
+        Handles.Label(transform.position, "X: " + System.Math.Round(transform.position.x, 2) + " Y: " + System.Math.Round(transform.position.y, 2));
+        // sin opposite/hypotenuse
+        Handles.Label(new Vector3(1.2f, 0.8f, 0f), "sin opposite/hypotenuse");
+        Handles.Label(new Vector3(1.3f, 0.7f, 0f), "sin: " + Vector3.Distance(centre, (new Vector3(transform.position.y, 0f, 0f))) / Vector3.Distance(centre, (transform.position)) );
+        // cos adjacient/hypotenuse
+        Handles.Label(new Vector3(1.2f, 0.6f, 0f), "cos adjacient/hypotenuse");
+        Handles.Label(new Vector3(1.3f, 0.5f, 0f), "cos: " + Vector3.Distance(centre, (new Vector3(transform.position.x, 0f, 0f))) / Vector3.Distance(centre, (transform.position)));
+        // tan opposite/adjacient
+        Handles.Label(new Vector3(1.2f, 0.4f, 0f), "tan opposite/adjacient");
+        Handles.Label(new Vector3(1.3f, 0.3f, 0f), "tan: " + Vector3.Distance(centre, (new Vector3(transform.position.y, 0f, 0f))) / Vector3.Distance(centre, (new Vector3(transform.position.x, 0f, 0f))));
+
+        Handles.Label(new Vector3(1f, -0.3f, 0f), "Next Position on Update()");
+        Handles.Label(new Vector3(1f, -0.4f, 0f), "newPosition = new Vector2(Mathf.Cos(angleInRadians), Mathf.Sin(angleInRadians)) * Radius");
+        Handles.Label(new Vector3(1f, -0.5f, 0f), "= new Vector2(opposite/hypotenuse(angleInRadians), adjacent/hypotenuse(angleInRadians)) * Radius");
+        Handles.Label(new Vector3(1f, -0.6f, 0f), "" + Mathf.Cos(angleInRadians) + ", " + Mathf.Sin(angleInRadians) + " * "  + Radius + " = " + newPosition);
+
+    }
+
+}
+
+/*
+        Using Cartesian Coordinates we mark a point by how far along (x) and how far up (y) it is:
+        Using Polar Coordinates we mark a point by how far away (magnitude or in this case as it's a circle always the radius is the same), and what angle (θ) it is:
+        To convert from Polar Coordinates (r,θ) to Cartesian Coordinates (x,y) :
+        x = r × cos( θ )
+        y = r × sin( θ )
+
+        Example: add the vectors a = (8,13) and b = (26,7)
+        c=a+b
+        c= (8,13) + (26,7) = (8+26,13+7) = (34,20)
+*/
+
